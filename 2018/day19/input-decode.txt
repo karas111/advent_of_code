@@ -1,0 +1,36 @@
+#addi 3 16 3
+seti 1 3 2 # ustaw r2 na 1
+seti 1 0 5 # ustaw r5 na 1
+mulr 2 5 1 # r1 = r2*r5
+eqrr 1 4 1 # porownaj r1 == r4 i wpisz wynik por do r1 // if r1 == r4 {r0+=r2}
+addr 1 3 3 # dodaj r1 do r3 i zapisz w r3 - czyli jesli 1==4 to pomin  7 instrukcje
+addi 3 1 3 # pomin instrukcje 8
+addr 2 0 0 # r0 += r2 (czyli to się nie wykona jesli  r1!=r4
+addi 5 1 5 # dodaj 1 do r5
+gtrr 5 4 1 # jeśli r5>r4 i wpisz do r1
+addr 3 1 3 # jesli r5>r4 to pomiń instrukcje 12
+seti 2 2 3 # skocz do instrukcji 2
+addi 2 1 2 # dodaj 1 do r2
+gtrr 2 4 1 # jeśli r2 > r4 zapisz do r1 - zakończ program
+addr 1 3 3 # pomiń instrukcję  16
+seti 1 1 3 # pętla do instrukcji 1
+mulr 3 3 3 # r3 * r3 - koniec
+#addi 4 2 4
+#mulr 4 4 4
+#mulr 3 4 4
+#muli 4 11 4
+#addi 1 4 1
+#mulr 1 3 1
+#addi 1 2 1
+#addr 4 1 4
+#addr 3 0 3
+#seti 0 2 3
+#setr 3 6 1
+#mulr 1 3 1
+#addr 3 1 1
+#mulr 3 1 1
+#muli 1 14 1
+#mulr 1 3 1
+#addr 4 1 4
+#seti 0 6 0
+#seti 0 9 3
