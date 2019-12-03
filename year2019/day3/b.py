@@ -25,7 +25,8 @@ def get_wire_points(wire_direction, starting_point=(0, 0)):
         for i in range(length):
             starting_point = (starting_point[0] + modifier[0], starting_point[1] + modifier[1])
             steps += 1
-            points[starting_point] = steps
+            if starting_point not in points:
+                points[starting_point] = steps
     return points
 
 
