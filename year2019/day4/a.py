@@ -22,7 +22,8 @@ def main():
     passwd_min = 245318
     passwd_max = 765747
     # print(check_passwd(1111))
-    print(sum(check_passwd(passwd) for passwd in range(passwd_min, passwd_max + 1)))
+    print(sum(check_passwd(passwd)
+              for passwd in range(passwd_min, passwd_max + 1)))
 
 
 if __name__ == "__main__":

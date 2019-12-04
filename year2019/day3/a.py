@@ -21,7 +21,8 @@ def read_wires():
 def get_wire_points(wire_direction, starting_point=(0, 0)):
     for modifier, length in wire_direction:
         for i in range(length):
-            starting_point = (starting_point[0] + modifier[0], starting_point[1] + modifier[1])
+            starting_point = (
+                starting_point[0] + modifier[0], starting_point[1] + modifier[1])
             yield starting_point
 
 
