@@ -49,6 +49,18 @@ class OpCode:
             raise ValueError()
 
 
+class TwoArgResultOpCode(OpCode):
+
+    def exec_func(self, args0, args1):
+        raise NotImplementedError()
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        program[program[self.idx + 3]] = self.exec_func(args0, args1)
+        return self.idx + 4
+
+
 class ExitOp(OpCode):
 
     def __init__(self, idx, program):
@@ -59,22 +71,16 @@ class ExitOp(OpCode):
         return self.idx + 1
 
 
-class AddOp(OpCode):
+class AddOp(TwoArgResultOpCode):
 
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        program[program[self.idx + 3]] = args0 + args1
-        return self.idx + 4
+    def exec_func(self, args0, args1):
+        return args0 + args1
 
 
-class MultOp(OpCode):
+class MultOp(TwoArgResultOpCode):
 
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        program[program[self.idx + 3]] = args0 * args1
-        return self.idx + 4
+    def exec_func(self, args0, args1):
+        return args0 * args1
 
 
 class InputOp(OpCode):
@@ -92,55 +98,40 @@ class OutputOp(OpCode):
         return self.idx + 2
 
 
-class JumpTrueOp(OpCode):
+class JumpSinlgeArgOpCode(OpCode):
 
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        if args0 != 0:
-            return args1
-        else:
-            return self.idx + 3
-
-
-class JumpFalseOp(OpCode):
-
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        if args0 == 0:
-            return args1
-        else:
-            return self.idx + 3
-
-
-class LessOp(OpCode):
-
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        program[program[self.idx + 3]] = int(args0 < args1)
-        return self.idx + 4
-
-class TwoArgResultOpCode(OpCode):
-
-    def exec_func(arg1, arg2):
+    def compare_arg(self, args0):
         raise NotImplementedError()
 
     def execute_program(self, program, input, output):
         args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        out_arg = self.get_arg(2, program)
-        program[out_arg] = self.exec_func(args0, arg1)
-        return self.idx + 4
+        if self.compare_arg(args0):
+            return self.get_arg(1, program)
+        else:
+            return self.idx + 3
 
-class EqualsOp(OpCode):
+class JumpTrueOp(JumpSinlgeArgOpCode):
 
-    def execute_program(self, program, input, output):
-        args0 = self.get_arg(0, program)
-        args1 = self.get_arg(1, program)
-        program[program[self.idx + 3]] = int(args0 == args1)
-        return self.idx + 4
+    def compare_arg(self, args0):
+        return args0 != 0
+
+
+class JumpFalseOp(JumpSinlgeArgOpCode):
+
+    def compare_arg(self, args0):
+        return args0 == 0
+
+
+class LessOp(TwoArgResultOpCode):
+
+    def exec_func(self, args0, args1):
+        return int(args0 < args1)
+
+
+class EqualsOp(TwoArgResultOpCode):
+
+    def exec_func(self, args0, args1):
+        return int(args0 == args1)
 
 
 def execute_program(program, input, output=None, idx=0):
@@ -158,7 +149,7 @@ def main():
     # program = [3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
     #            1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
     #            999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99]
-    input = [5]
+    input = [1]
     output = execute_program(program, input)
     print(output)
     print(program)
