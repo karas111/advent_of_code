@@ -43,8 +43,8 @@ class OpCode:
 
 class ExitOp(OpCode):
 
-    def __init__(self, idx):
-        super().__init__(idx)
+    def __init__(self, idx, program):
+        super().__init__(idx, program)
         self.exit = True
 
     def execute_program(self, program, input, output):
@@ -56,7 +56,7 @@ class AddOp(OpCode):
     def execute_program(self, program, input, output):
         args0 = self.get_arg(0, program)
         args1 = self.get_arg(1, program)
-        program[self.idx + 3] = args0 + args1
+        program[program[self.idx + 3]] = args0 + args1
         return self.idx + 4
 
 
@@ -65,14 +65,14 @@ class MultOp(OpCode):
     def execute_program(self, program, input, output):
         args0 = self.get_arg(0, program)
         args1 = self.get_arg(1, program)
-        program[self.idx + 3] = args0 * args1
+        program[program[self.idx + 3]] = args0 * args1
         return self.idx + 4
 
 
 class InputOp(OpCode):
 
     def execute_program(self, program, input, output):
-        program[self.idx + 1] = input.pop(0)
+        program[program[self.idx + 1]] = input.pop(0)
         return self.idx + 2
 
 
@@ -85,6 +85,8 @@ class OutputOp(OpCode):
 
 
 def execute_program(program, input, output=None, idx=0):
+    if output is None:
+        output = []
     while True:
         op_code = OpCode.create(program, idx)
         idx = op_code.execute_program(program, input, output)
@@ -93,8 +95,8 @@ def execute_program(program, input, output=None, idx=0):
 
 
 def main():
-    # program = read_program()
-    program = [1002, 4, 3, 4, 33]
+    program = read_program()
+    # program = [1002, 4, 3, 4, 33]
     input = [1]
     output = execute_program(program, input)
     print(output)
