@@ -110,6 +110,7 @@ class JumpSinlgeArgOpCode(OpCode):
         else:
             return self.idx + 3
 
+
 class JumpTrueOp(JumpSinlgeArgOpCode):
 
     def compare_arg(self, args0):

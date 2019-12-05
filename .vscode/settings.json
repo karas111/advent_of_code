@@ -1,6 +1,28 @@
 {
     "python.pythonPath": "env/bin/python",
-    "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true,
-    "python.formatting.provider": "autopep8"
+    "python.formatting.provider": "autopep8",
+    "editor.fontLigatures": true,
+    "editor.insertSpaces": true,
+    "editor.rulers": [
+        150
+    ],
+    "editor.renderWhitespace": "all",
+    "editor.stopRenderingLineAfter" : -1,
+    "gitlens.views.repositories.location": "scm",
+    "gitlens.views.fileHistory.location": "gitlens",
+    "gitlens.views.lineHistory.location": "gitlens",
+    "gitlens.views.search.location": "gitlens",
+    "workbench.editor.enablePreview": false,
+    "python.analysis.logLevel": "Information",
+    "files.exclude": {
+        "**/*.pyc": {
+          "when": "$(basename).py"
+        },
+        "**/__pycache__": true,
+      },
+      "python.linting.flake8Enabled": true,
+      "python.linting.enabled": true,
+      "python.linting.flake8Args": [
+        "--max-line-length=150"
+      ]
 }
