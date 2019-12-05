@@ -27,6 +27,14 @@ class OpCode:
             return InputOp(idx, program)
         elif op_code == 4:
             return OutputOp(idx, program)
+        elif op_code == 5:
+            return JumpTrueOp(idx, program)
+        elif op_code == 6:
+            return JumpFalseOp(idx, program)
+        elif op_code == 7:
+            return LessOp(idx, program)
+        elif op_code == 8:
+            return EqualsOp(idx, program)
         else:
             raise ValueError()
 
@@ -84,6 +92,57 @@ class OutputOp(OpCode):
         return self.idx + 2
 
 
+class JumpTrueOp(OpCode):
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        if args0 != 0:
+            return args1
+        else:
+            return self.idx + 3
+
+
+class JumpFalseOp(OpCode):
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        if args0 == 0:
+            return args1
+        else:
+            return self.idx + 3
+
+
+class LessOp(OpCode):
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        program[program[self.idx + 3]] = int(args0 < args1)
+        return self.idx + 4
+
+class TwoArgResultOpCode(OpCode):
+
+    def exec_func(arg1, arg2):
+        raise NotImplementedError()
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        out_arg = self.get_arg(2, program)
+        program[out_arg] = self.exec_func(args0, arg1)
+        return self.idx + 4
+
+class EqualsOp(OpCode):
+
+    def execute_program(self, program, input, output):
+        args0 = self.get_arg(0, program)
+        args1 = self.get_arg(1, program)
+        program[program[self.idx + 3]] = int(args0 == args1)
+        return self.idx + 4
+
+
 def execute_program(program, input, output=None, idx=0):
     if output is None:
         output = []
@@ -96,8 +155,10 @@ def execute_program(program, input, output=None, idx=0):
 
 def main():
     program = read_program()
-    # program = [1002, 4, 3, 4, 33]
-    input = [1]
+    # program = [3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
+    #            1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
+    #            999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99]
+    input = [5]
     output = execute_program(program, input)
     print(output)
     print(program)
