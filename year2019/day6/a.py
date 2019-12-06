@@ -1,4 +1,5 @@
 import os
+from cached_property import cached_property
 
 
 class Node:
@@ -6,10 +7,21 @@ class Node:
         self.label = label
         self.neighbours = []
         self.parent = None
-        self.orbits = 0
 
     def add_neighbour(self, n):
         self.neighbours.append(n)
+
+    @cached_property
+    def orbits(self):
+        return sum(n.orbits for n in self.neighbours) + len(self.neighbours)
+
+    def path(self, res=None):
+        if res is None:
+            res = []
+        if self.parent is not None:
+            res = self.parent.path(res)
+        res.append(self.label)
+        return res
 
 
 def read_input():
@@ -25,36 +37,17 @@ def read_input():
     return graph
 
 
-def calculate_orbits(node):
-    for n in node.neighbours:
-        calculate_orbits(n)
-    node.orbits += sum(n.orbits for n in node.neighbours) + \
-        len(node.neighbours)
-
-
 def calculate1(graph):
-    com = graph['COM']
-    calculate_orbits(com)
     print(sum(n.orbits for n in graph.values()))
 
 
-def generate_path(node, path=None):
-    if path is None:
-        path = []
-    if node is None:
-        return path
-    else:
-        path.append(node.label)
-        return generate_path(node.parent, path)
-
-
 def calculate2(graph):
-    path1 = generate_path(graph['YOU'])
-    path2 = generate_path(graph['SAN'])
-    idx = 1
-    while path1[-idx] == path2[-idx]:
+    path1 = graph['YOU'].path()
+    path2 = graph['SAN'].path()
+    idx = 0
+    while path1[idx] == path2[idx]:
         idx += 1
-    print(len(path1) + len(path2) - 2 * idx)
+    print(len(path1) + len(path2) - 2 * (idx + 1))
 
 
 def main():
