@@ -1,8 +1,10 @@
 import os
 
 
-def read_program():
-    with open(os.path.join(os.path.dirname(__file__), "input.txt")) as f:
+def read_program(path=None):
+    if path is None:
+        path = os.path.join(os.path.dirname(__file__), "input.txt")
+    with open(path) as f:
         program = [int(n) for n in f.readline().split(",")]
     return program
 
@@ -36,7 +38,7 @@ class OpCode:
         elif op_code == 8:
             return EqualsOp(idx, program)
         else:
-            raise ValueError()
+            raise ValueError('No such opcode %d' % op_code)
 
     def get_arg(self, arg_n, program):
         positional_ind = (self.op_code // 10 ** (2 + arg_n)) % 10
