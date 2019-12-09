@@ -9,11 +9,6 @@ from year2019.intcode.utils import read_program
 logger = logging.getLogger(__name__)
 
 
-def read_input():
-    with open(os.path.join(os.path.dirname(__file__), "input.txt")) as f:
-        return [line for line in f]
-
-
 def main():
     program = read_program(os.path.join(
         os.path.dirname(__file__), "input.txt"))
