@@ -1,4 +1,4 @@
-from enum import Enum
+import asyncio
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,25 +29,27 @@ class OpCode:
             raise ValueError('No such opcode %d' % op_code)
         return op_code_generator(computer)
 
+    async def execute_program(self):
+        raise NotImplementedError
+
 
 class TwoArgResultOpCode(OpCode):
 
     def exec_func(self, args0, args1):
         raise NotImplementedError()
 
-    def execute_program(self):
+    async def execute_program(self):
         args0 = self.computer.read_mem(0)
         args1 = self.computer.read_mem(1)
         self.computer.write_mem(2, self.exec_func(args0, args1))
         self.computer.increase_inst(4)
-        return ComputerState.RUNNING
 
 
 class ExitOp(OpCode):
 
-    def execute_program(self):
+    async def execute_program(self):
         self.computer.increase_inst(1)
-        return ComputerState.FINISHED
+        self.computer.finished = True
 
 
 class AddOp(TwoArgResultOpCode):
@@ -64,21 +66,18 @@ class MultOp(TwoArgResultOpCode):
 
 class InputOp(OpCode):
 
-    def execute_program(self):
-        if len(self.computer.input) == 0:
-            return ComputerState.PAUSED
-        self.computer.write_mem(0, self.computer.input.pop(0))
+    async def execute_program(self):
+        inp = await self.computer.input.get()
+        self.computer.write_mem(0, inp)
         self.computer.increase_inst(2)
-        return ComputerState.RUNNING
 
 
 class OutputOp(OpCode):
 
-    def execute_program(self):
+    async def execute_program(self):
         args0 = self.computer.read_mem(0)
-        self.computer.output.append(args0)
+        await self.computer.output.put(args0)
         self.computer.increase_inst(2)
-        return ComputerState.RUNNING
 
 
 class JumpSinlgeArgOpCode(OpCode):
@@ -86,14 +85,12 @@ class JumpSinlgeArgOpCode(OpCode):
     def compare_arg(self, args0):
         raise NotImplementedError()
 
-    def execute_program(self):
+    async def execute_program(self):
         args0 = self.computer.read_mem(0)
         if self.compare_arg(args0):
             self.computer.set_inst(self.computer.read_mem(1))
-            return ComputerState.RUNNING
         else:
             self.computer.increase_inst(3)
-            return ComputerState.RUNNING
 
 
 class JumpTrueOp(JumpSinlgeArgOpCode):
@@ -122,29 +119,22 @@ class EqualsOp(TwoArgResultOpCode):
 
 class RelativeBaseOp(OpCode):
 
-    def execute_program(self):
+    async def execute_program(self):
         args0 = self.computer.read_mem(0)
         self.computer.increase_releative_base(args0)
         self.computer.increase_inst(2)
-        return ComputerState.RUNNING
-
-
-class ComputerState(Enum):
-    PAUSED = 1
-    RUNNING = 2
-    FINISHED = 3
 
 
 class Computer:
     UNITIALIZED_MEM = 0
 
-    def __init__(self, program, input, output, idx=0, relative_base=0):
+    def __init__(self, program, input: asyncio.Queue, output: asyncio.Queue, idx=0, relative_base=0):
         self.program = dict(enumerate(program))
         self.input = input
         self.output = output
         self.idx = idx
         self.relative_base = relative_base
-        self.state = ComputerState.PAUSED
+        self.finished = False
 
     def _read_raw_arg(self, arg_n):
         op_code = self.program[self.idx]
@@ -179,12 +169,17 @@ class Computer:
     def set_inst(self, idx):
         self.idx = idx
 
-    def execute(self):
-        if self.state != ComputerState.PAUSED:
+    def flush_output(self):
+        res = []
+        while not self.output.empty():
+            res.append(self.output.get_nowait())
+        return res
+
+    async def execute(self):
+        if self.finished:
             raise ValueError('Can not run computer in state %s' % self.state)
-        self.state = ComputerState.RUNNING
         while True:
             op_code = OpCode.create(self)
-            self.state = op_code.execute_program()
-            if self.state in [ComputerState.PAUSED, ComputerState.FINISHED]:
+            await op_code.execute_program()
+            if self.finished:
                 return
