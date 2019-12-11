@@ -50,8 +50,9 @@ async def count_painted(computer: Computer, initial_color):
 def paint_ship(ship):
     white_coordinates = [cor for cor, val in ship.items() if val == 1]
     min_x, min_y = min(x for x, y in white_coordinates), min(y for x, y in white_coordinates)
-    white_coordinates = [(x + min_x, y + min_y) for x, y in white_coordinates]
-    data = numpy.zeros((32, 64, 3), dtype=numpy.uint8)
+    white_coordinates = [(x - min_x, y - min_y) for x, y in white_coordinates]
+    max_x, max_y = max(x for x, y in white_coordinates), max(y for x, y in white_coordinates)
+    data = numpy.zeros((max_x+1, max_y+1, 3), dtype=numpy.uint8)
     for cord in white_coordinates:
         data[cord[0], cord[1]] = [255, 255, 255]
     image = Image.fromarray(data)
@@ -64,6 +65,7 @@ async def main():
     computer = Computer(copy.copy(program), input, Queue())
     ship, _ = await gather(count_painted(computer, initial_color=0), computer.execute())
     logger.info('Result part a: %s', len(ship))
+    paint_ship(ship)
     computer = Computer(copy.copy(program), input, Queue())
     ship, _ = await gather(count_painted(computer, initial_color=1), computer.execute())
     paint_ship(ship)
