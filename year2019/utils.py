@@ -15,7 +15,7 @@ def run_main_coroutine(main):
     loop.close()
 
 
-def print_2dgraph(graph, str_func):
+def print_2dgraph(graph, str_func=None):
     xs, ys = zip(*graph.keys())
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
