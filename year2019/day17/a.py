@@ -5,7 +5,7 @@ from asyncio import Queue, gather
 
 from year2019.intcode.computer import Computer
 from year2019.intcode.utils import read_program
-from year2019.utils import init_logging, run_main_coroutine
+from year2019.utils import init_logging, print_2dgraph, run_main_coroutine
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,12 @@ class Node:
     def __repr__(self):
         return 'N(%d, %d)' % (self.x, self.y)
 
+    @staticmethod
+    def str_graph(node):
+        if node.robot_direction is None:
+            return '#'
+        else:
+            return [k for k, v in ROBOT_DIECTIONS.items() if v == node.robot_direction][0]
 
 NEIGHB = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 ROBOT_DIECTIONS = {'^': 1, '>': 2, 'v': 3, '<': 4}
@@ -62,6 +68,7 @@ async def main():
     graph, _ = await gather(read_graph(computer), computer.execute())
     res = find_intersections(graph)
     logger.info('Result part a: %s', res)
+    logger.info('Graph:\n%s', print_2dgraph(graph, str_func=Node.str_graph))
     res = None
     logger.info('Result part b: %s', res)
 
