@@ -27,7 +27,7 @@ async def read_graph(program, max_x, max_y):
 
 
 async def check_point(program, x, y):
-    if x< 0 or y < 0:
+    if x < 0 or y < 0:
         return False
     computer = Computer(copy.copy(program), Queue(), Queue())
     await computer.input.put(x)
@@ -37,23 +37,23 @@ async def check_point(program, x, y):
     return bool(symbol)
 
 
-async def fits(program, x, y, n):
-    to_check = [(x, y-n), (x+n, y-n)]
-    for n_x, n_y in to_check:
-        if not await check_point(program, n_x, n_y):
-            return False
-    return True
+# async def fits(program, x, y, n):
+#     to_check = [(x-n, y-n), (x+n, y-n)]
+#     for n_x, n_y in to_check:
+#         if not await check_point(program, n_x, n_y):
+#             return False
+#     return True
 
 
 async def find_big(program, n=100):
     x = y = 0
-    while not await fits(program, x, y, n):
+    while not await check_point(program, x-n, y+n):
         x += 1
         while not await check_point(program, x, y):
             y += 1
         if x % 100 == 0:
-            logger.info('LB(%d, %d)', x, y)
-    return (x, y-n)
+            logger.info('TR(%d, %d)', x, y)
+    return (x-n, y)
 
 
 async def main():
