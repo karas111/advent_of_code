@@ -51,7 +51,7 @@ async def main():
     program = read_program(os.path.join(os.path.dirname(__file__), "input.txt"))
     graph = await read_graph(program, 50, 50)
     logger.info('Result part a: %s', sum(sum(line) for line in graph))
-    # logger.info('Beam:\n%s', print_2darray(graph, str_func=lambda x: x and '#' or ' '))
+    logger.info('Beam:\n%s', print_2darray(graph, str_func=lambda x: x and '#' or ' '))
     x, y = await find_big(program, n=100)
     logger.info('Result part b: (%d, %d) - %d', x, y, x*10000 + y)
 
