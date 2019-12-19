@@ -34,3 +34,9 @@ def print_2dgraph(graph, str_func=None):
             line.append(s)
         lines.append(''.join(line))
     return '\n'.join(lines)
+
+
+def print_2darray(array, str_func=None):
+    if str_func is None:
+        str_func = str
+    return '\n'.join(''.join(str_func(c) for c in line) for line in array)
