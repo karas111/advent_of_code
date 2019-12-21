@@ -1,5 +1,4 @@
 import logging
-import copy
 import os
 from collections import namedtuple
 
