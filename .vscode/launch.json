@@ -12,6 +12,7 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceRoot}",
             "env": {"PYTHONPATH": "${workspaceRoot}"},
+            "showReturnValue": true,
         }
     ]
 }
