@@ -1,6 +1,6 @@
 {
-    "python.pythonPath": "env/bin/python",
-    "python.formatting.provider": "autopep8",
+    "python.pythonPath": "/usr/bin/python3",
+    "python.formatting.provider": "black",
     "editor.fontLigatures": true,
     "editor.insertSpaces": true,
     "editor.rulers": [
