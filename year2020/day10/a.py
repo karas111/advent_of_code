@@ -1,9 +1,10 @@
 import logging
 import os
+import time
 
 from year2019.utils import init_logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) 
 
 INPUT_FILE = "input.txt"
 
@@ -67,4 +68,6 @@ def main():
 
 if __name__ == "__main__":
     init_logging()
+    start_time = time.time()
     main()
+    logger.info(f"{(time.time() - start_time)*1000} miliseconds ---")
