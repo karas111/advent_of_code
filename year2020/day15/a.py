@@ -1,9 +1,5 @@
 import logging
-import math
-import os
-import re
 import time
-from collections import namedtuple
 
 from year2019.utils import init_logging
 
@@ -15,11 +11,13 @@ TEST3 = [1, 2, 3]
 
 
 def play(start_numbers, max_rounds=2020):
-    occurences = {n: idx for idx, n in enumerate(start_numbers)}
+    occurences = [None]*max_rounds
+    for idx, n in enumerate(start_numbers):
+        occurences[n] = idx
     last_n = start_numbers[-1]
     for i in range(len(start_numbers), max_rounds):
-        if last_n in occurences:
-            new_last_n = i - 1 - occurences.get(last_n, 0)
+        if occurences[last_n] is not None:
+            new_last_n = i - 1 - occurences[last_n]
         else:
             new_last_n = 0
         occurences[last_n] = i - 1
@@ -29,7 +27,7 @@ def play(start_numbers, max_rounds=2020):
 
 def main():
     start_numbers = [16, 12, 1, 0, 15, 7, 11]
-    # start_numbers = TEST2
+    # start_numbers = TEST1
     res = play(start_numbers)
     logger.info(f"Res A={res}")
     res = play(start_numbers, max_rounds=30000000)
