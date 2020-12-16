@@ -1,5 +1,4 @@
 import logging
-import math
 import os
 import re
 import time
@@ -56,7 +55,7 @@ def run_instructions(instructions, part_b=False):
     for instruction in instructions:
         if "mask = " in instruction:
             if part_b:
-                mask = instruction[len("mask = ") :]
+                mask = instruction[len("mask = "):]
             else:
                 mask = create_mask(instruction)
         else:
