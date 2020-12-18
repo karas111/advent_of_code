@@ -58,7 +58,13 @@ def main():
     last_grid = play_life(grid, max_rounds=6, dimensions=3)
     logger.info(f"Res A={len(last_grid)}")
     grid = {val + (0,) for val in grid}
-    last_grid = play_life(grid, max_rounds=6, dimensions=4)
+    import cProfile
+
+    with cProfile.Profile() as pr:
+        # ... do something ...
+        last_grid = play_life(grid, max_rounds=6, dimensions=4)
+
+    pr.print_stats()
     logger.info(f"Res B={len(last_grid)}")
 
 
