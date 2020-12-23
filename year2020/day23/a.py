@@ -1,9 +1,6 @@
-import itertools
 import logging
-import os
 import time
-from collections import deque
-from typing import Deque, Tuple, Dict
+from typing import Dict
 
 from year2019.utils import init_logging
 
@@ -11,17 +8,16 @@ logger = logging.getLogger(__name__)
 
 
 class LinkedList:
-    def __init__(self, val, left=None, right=None) -> None:
+    def __init__(self, val) -> None:
         self.val = val
-        self.left = left
-        self.right = right
+        self.right = None
 
     @staticmethod
     def create(args):
         size = len(args)
         nodes = [LinkedList(v) for v in args]
         for i in range(size):
-            nodes[i].left, nodes[i].right = nodes[(i-1)%size], nodes[(i+1) % size]
+            nodes[i].right = nodes[(i + 1) % size]
         return {n.val: n for n in nodes}
 
     def to_list(self):
@@ -44,23 +40,30 @@ def play(deck: Dict[int, LinkedList], current: int, rounds: int):
     current_node = deck[current]
     while rounds > 0:
         first_cut, last_cut = current_node.right, current_node.right.right.right
-        destination = get_destination(deck, current_node)
-        current_node.right, last_cut.right.left = last_cut.right, current_node
-        last_cut.right, destination.right.left = destination.right, last_cut
-        destination.right, first_cut.left = first_cut, destination
+        destination_start = get_destination(deck, current_node)
+        destination_end = destination_start.right
+        current_node.right = last_cut.right
+        destination_start.right = first_cut
+        last_cut.right = destination_end
         current_node = current_node.right
+        if rounds % 10 ** 6 == 0:
+            logger.info(f"Rounds left {rounds}")
         rounds -= 1
-        # print(rounds)
 
 
 def main():
     init_deck = [4, 6, 7, 5, 2, 8, 1, 9, 3]
-    init_deck = [int(x) for x in "389125467"]
+    # init_deck = [int(x) for x in "389125467"]
     deck = LinkedList.create(init_deck)
-    # print(deck[4].to_list())
-    play(deck, current=init_deck[0], rounds=1)
-    print(deck[1].to_list())
+    play(deck, current=init_deck[0], rounds=100)
+    res_a = "".join([str(x) for x in deck[1].to_list()[1:]])
+    logger.info(f"Res A {res_a}")
 
+    init_deck += list(range(10, 10 ** 6 + 1))
+    deck = LinkedList.create(init_deck)
+    play(deck, current=init_deck[0], rounds=10 ** 7)
+    node = deck[1]
+    logger.info(f"Res B {node.right.val * node.right.right.val}")
 
 
 if __name__ == "__main__":
