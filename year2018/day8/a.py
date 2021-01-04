@@ -1,11 +1,5 @@
-import datetime
 import logging
-import os
-import re
 import time
-from collections import namedtuple
-from enum import Enum
-from typing import List
 
 from year2019.utils import init_logging
 
@@ -21,19 +15,19 @@ class LinkedList:
         self.right = right
 
     @classmethod
-    def create(cls, args, circle=False) -> 'LinkedList':
+    def create(cls, args, circle=False) -> "LinkedList":
         nodes = [cls(arg) for arg in args]
         for i in range(len(nodes) - 1):
-            nodes[i].connect(nodes[i+1])
+            nodes[i].connect(nodes[i + 1])
         if circle:
             nodes[-1].connect(nodes[0])
         return nodes[0]
 
-    def connect(self, other: 'LinkedList'):
+    def connect(self, other: "LinkedList"):
         self.right = other
         other.left = self
 
-    def rotate(self, n, left=False) -> 'LinkedList':
+    def rotate(self, n, left=False) -> "LinkedList":
         curr = self
         for _ in range(n):
             if left:
@@ -66,7 +60,6 @@ def play(players, stones):
             current = right
             scores[player] += stone + to_remove.val
             left.connect(right)
-            # queue.append(to_remove.val)
         else:
             node = LinkedList(stone)
             left, right = current.right, current.right.right
@@ -83,7 +76,7 @@ def main():
     players, stones = 425, 70848
     scores = play(players, stones)
     logger.info(f"Res A {max(scores.values())}")
-    scores = play(players, stones*100)
+    scores = play(players, stones * 100)
     logger.info(f"Res B {max(scores.values())}")
 
 
