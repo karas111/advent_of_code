@@ -6,7 +6,6 @@ from typing import List
 
 import numpy as np
 
-# import numpy as np
 from year2019.utils import init_logging
 from z3 import If, Int, Optimize
 
