@@ -1,9 +1,6 @@
 import logging
-import re
 import os
 import time
-from collections import namedtuple
-from typing import List
 
 from year2019.utils import init_logging
 
