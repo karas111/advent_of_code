@@ -54,6 +54,11 @@ def knot_hash(lengths):
     return hex_repr(dense_h)
 
 
+def knot_hash_str(stream):
+    stream = [ord(x) for x in stream] + [17, 31, 73, 47, 23]
+    return knot_hash(stream)
+
+
 def main():
     lengths = parse_input()
     buffer, _, _ = one_round_hash(lengths)
