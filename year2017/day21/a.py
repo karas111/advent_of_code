@@ -1,11 +1,9 @@
-from functools import cached_property, lru_cache
+import copy
 import logging
 import os
 import re
 import time
-import copy
-from collections import namedtuple
-from typing import Pattern
+from functools import cached_property, lru_cache
 
 import numpy as np
 from year2019.utils import init_logging
@@ -32,7 +30,9 @@ class Rule:
     @lru_cache(maxsize=None)
     def is_matching(self, img):
         img = np.array(img)
-        return self.pattern.shape == img.shape and any(np.all(pattern == img) for pattern in self.all_patterns)
+        return self.pattern.shape == img.shape and any(
+            np.all(pattern == img) for pattern in self.all_patterns
+        )
 
 
 def parse_input():
@@ -69,7 +69,9 @@ def paint(img, rules, iterations=5):
 
 def main():
     rules = parse_input()
-    starting_img = np.array([[False, True, False], [False, False, True], [True, True, True]])
+    starting_img = np.array(
+        [[False, True, False], [False, False, True], [True, True, True]]
+    )
     img = paint(starting_img, rules, 18)
     logger.info(f"Res A {np.sum(img)}")
 
