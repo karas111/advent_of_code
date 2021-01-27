@@ -1,7 +1,6 @@
 import logging
 import time
 from collections import deque
-import itertools
 
 from year2019.utils import init_logging
 
@@ -12,7 +11,7 @@ MAGIC_NUMBER = 1352
 
 
 def is_space(x, y):
-    number = x*x + 3*x + 2*x*y + y + y*y + MAGIC_NUMBER
+    number = x * x + 3 * x + 2 * x * y + y + y * y + MAGIC_NUMBER
     return bin(number).count("1") % 2 == 0
 
 
@@ -31,7 +30,7 @@ def bfs(x, y, max_steps):
             if n_x < 0 or n_y < 0:
                 continue
             if is_space(n_x, n_y):
-                queue.append((n_x, n_y, steps+1))
+                queue.append((n_x, n_y, steps + 1))
     return seen_pos
 
 
@@ -40,6 +39,7 @@ def main():
     res = bfs(1, 1, max_steps=100)
     logger.info(f"Res A {res[(31, 39)]}")
     logger.info(f"Res A {len([x for x in res.values() if x <= 50])}")
+
 
 if __name__ == "__main__":
     init_logging()
