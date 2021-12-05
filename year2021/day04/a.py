@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List, NamedTuple
+from typing import List
 
 from year2019.utils import init_logging
 
