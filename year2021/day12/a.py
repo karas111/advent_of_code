@@ -2,8 +2,6 @@ from collections import defaultdict
 import logging
 import os
 from typing import Dict, List
-import copy
-import pprint
 
 from year2019.utils import init_logging
 
