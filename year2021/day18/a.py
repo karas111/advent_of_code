@@ -1,13 +1,13 @@
-from collections import defaultdict
 import logging
 import os
-from typing import Dict, List, Tuple, Optional
+from typing import List, Tuple, Optional
+import itertools
 
 from year2019.utils import init_logging
 
 logger = logging.getLogger(__name__)
 
-INPUT_FILE = "test2.txt"
+INPUT_FILE = "input.txt"
 
 
 class Node:
@@ -77,6 +77,9 @@ class Node:
         new_node.reduce()
         return new_node
 
+    def magnitude(self):
+        raise NotImplementedError()
+
 
 class Knot(Node):
     def __init__(self, left: Node, right: Node) -> None:
@@ -138,6 +141,9 @@ class Knot(Node):
         else:
             return self.right.get_outermost_leaf(left)
 
+    def magnitude(self):
+        return self.left.magnitude() * 3 + self.right.magnitude() * 2
+
 
 class Leaf(Node):
     def __init__(self, val: int) -> None:
@@ -157,10 +163,14 @@ class Leaf(Node):
             left = Leaf(self.val // 2)
             right = Leaf(self.val - left.val)
             new_node = Knot(left, right)
-            left.left_leaf = self.left_leaf
             left.right_leaf = right
             right.left_leaf = left
-            right.right_leaf = self.right_leaf
+            if self.left_leaf:
+                left.left_leaf = self.left_leaf
+                self.left_leaf.right_leaf = left
+            if self.right_leaf:
+                right.right_leaf = self.right_leaf
+                self.right_leaf.left_leaf = right
             self.parent.replace(self, new_node)
             new_node.recalculate_depth()
             return True
@@ -169,31 +179,40 @@ class Leaf(Node):
     def get_outermost_leaf(self, left=True) -> "Leaf":
         return self
 
+    def magnitude(self):
+        return self.val
+
 
 def read_input() -> List[Node]:
     with open(os.path.join(os.path.dirname(__file__), INPUT_FILE)) as f:
-        res = []
-        for line in f:
-            if not line:
-                continue
-            node = Node.parse(line.strip())
-            node.recalculate_depth()
-            res.append(node)
-        return res
+        return [Node.parse(line.strip()) for line in f if line]
 
 
 def sum_nodes(nodes: List[Node]) -> Node:
     res = nodes[0]
     for node in nodes[1:]:
         res = res.add(node)
-        logger.info(f"\n{res}")
     return res
+
+
+def find_biggest_sum() -> int:
+    with open(os.path.join(os.path.dirname(__file__), INPUT_FILE)) as f:
+        nodes_str = [line.strip() for line in f]
+    max_mag = 0
+    for n1, n2 in itertools.combinations(nodes_str, 2):
+        max_mag = max(
+            max_mag,
+            sum_nodes([Node.parse(n1), Node.parse(n2)]).magnitude(),
+            sum_nodes([Node.parse(n2), Node.parse(n1)]).magnitude(),
+        )
+    return max_mag
 
 
 def main():
     nodes = read_input()
     node = sum_nodes(nodes)
-    logger.info(f"Res a {node}")
+    logger.info(f"Res a {node.magnitude()}")
+    logger.info(f"Res b {find_biggest_sum()}")
 
 
 if __name__ == "__main__":
