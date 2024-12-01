@@ -2,8 +2,6 @@ import os
 import logging
 from typing import Dict, List
 
-from attr import dataclass
-
 from year2019.utils import init_logging
 
 logger = logging.getLogger(__name__)
@@ -15,6 +13,7 @@ MAX_SHOWDOWN = {
     "green": 13,
     "blue": 14,
 }
+
 
 def parse_game(line: str) -> List[Dict]:
     res = []
@@ -40,15 +39,17 @@ def check_game(game: List[Dict]) -> bool:
                 return False
     return True
 
+
 def get_power(game: List[Dict]) -> int:
     res = 1
     for color in ["red", "green", "blue"]:
         res *= max(showdown.get(color, 0) for showdown in game)
     return res
 
+
 def main():
     games = read_games()
-    valid_games = [i+1 for i, game in games.items() if check_game(game)]
+    valid_games = [i + 1 for i, game in games.items() if check_game(game)]
     logger.info(f"Result a {sum(valid_games)}, {valid_games}")
 
     powers = [get_power(game) for game in games.values()]
