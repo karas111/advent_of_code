@@ -122,38 +122,59 @@ class Transitions(Graph):
 
 def main():
     g = Transitions(max_y=2)
-    test_start = FrozenDict({
-        (2, 1): PointState.B,
-        (2, 2): PointState.A,
-        (4, 1): PointState.C,
-        (4, 2): PointState.D,
-        (6, 1): PointState.B,
-        (6, 2): PointState.C,
-        (8, 1): PointState.D,
-        (8, 2): PointState.A,
-    })
-    start = FrozenDict({
-        (2, 1): PointState.B,
-        (2, 2): PointState.D,
-        (4, 1): PointState.C,
-        (4, 2): PointState.D,
-        (6, 1): PointState.C,
-        (6, 2): PointState.A,
-        (8, 1): PointState.B,
-        (8, 2): PointState.A,
-    })
-    goal = FrozenDict({
-        (2, 1): PointState.A,
-        (2, 2): PointState.A,
-        (4, 1): PointState.B,
-        (4, 2): PointState.B,
-        (6, 1): PointState.C,
-        (6, 2): PointState.C,
-        (8, 1): PointState.D,
-        (8, 2): PointState.D,
-    })
+    test_start = FrozenDict(
+        {
+            (2, 1): PointState.B,
+            (2, 2): PointState.A,
+            (4, 1): PointState.C,
+            (4, 2): PointState.D,
+            (6, 1): PointState.B,
+            (6, 2): PointState.C,
+            (8, 1): PointState.D,
+            (8, 2): PointState.A,
+        }
+    )
+    start = FrozenDict(
+        {
+            (2, 1): PointState.B,
+            (2, 2): PointState.D,
+            (4, 1): PointState.C,
+            (4, 2): PointState.D,
+            (6, 1): PointState.C,
+            (6, 2): PointState.A,
+            (8, 1): PointState.B,
+            (8, 2): PointState.A,
+        }
+    )
+    goal = FrozenDict(
+        {
+            (2, 1): PointState.A,
+            (2, 2): PointState.A,
+            (4, 1): PointState.B,
+            (4, 2): PointState.B,
+            (6, 1): PointState.C,
+            (6, 2): PointState.C,
+            (8, 1): PointState.D,
+            (8, 2): PointState.D,
+        }
+    )
+
+    def heurestic(start: State, goal: State) -> int:
+        s1 = set(start.items())
+        s2 = set(goal.items())
+        on_good_spots = s1 & s2
+        s1 = s1 - on_good_spots
+        s2 = s2 - on_good_spots
+        s1 = sorted(s1, key=lambda x: x[1].value)
+        s2 = sorted(s2, key=lambda x: x[1].value)
+        res = 0
+        for ((x0, y0), point_state), ((x1, y1), point_state2) in zip(s1, s2):
+            assert point_state == point_state2
+            res += (abs(x1 - x0) + y0 + y1) * COST[point_state]
+        return res
+
     with catchtime(logger):
-        score, _ = search_shortest(start, goal, g)
+        score, _ = search_shortest(start, goal, g, heurestic)
     logger.info("Res A %s", score)
 
     g = Transitions(max_y=4)
@@ -218,7 +239,7 @@ def main():
         }
     )
     with catchtime(logger):
-        score, _ = search_shortest(start, goal, g)
+        score, _ = search_shortest(start, goal, g, heurestic)
     logger.info("Res B %s", score)
 
 
