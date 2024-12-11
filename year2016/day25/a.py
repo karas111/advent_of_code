@@ -1,10 +1,7 @@
 import logging
-from multiprocessing import Value
 import os
-from math import factorial
 
-from year2016.day12.a import (CpyInst, DecInst, IncInst, Instruction, JnzInst,
-                              TwoArgsInstruction, parse_input)
+from year2016.day12.a import Instruction, parse_input
 from year2019.utils import init_logging
 
 INPUT_FILE = "input.txt"
@@ -34,17 +31,17 @@ def main():
     # the program translates to
     a_start = 1
     while False:
-        a = 14*182 + a_start
+        a = 14 * 182 + a_start
         while a:
-            b = a%2
-            a = a//2
+            b = a % 2
+            a = a // 2
             logger.info(b)
 
     # For blinking endles signal
     # the binary represetnation of a + 14*182 needs to be
     # 1010101010....
     # so we are looking for first such number greater than 14*182
-    start_n = 14*182
+    start_n = 14 * 182
     len_num = len(bin(start_n)[2:])
     expected = 0
     signal = True
@@ -54,8 +51,7 @@ def main():
         signal = not signal
     logger.info(expected)
     logger.info(bin(expected))
-    logger.info("Res a %s", expected-start_n)
-
+    logger.info("Res a %s", expected - start_n)
 
 
 if __name__ == "__main__":
