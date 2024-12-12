@@ -1,6 +1,7 @@
-import os
 import logging
-from typing import Dict, Iterable, List
+import os
+import re
+from collections import defaultdict
 
 from year2019.utils import init_logging
 
@@ -9,50 +10,52 @@ logger = logging.getLogger(__name__)
 INPUT_FILE = "input.txt"
 
 
-def read_map() -> List[str]:
+Grid = list[str]
+
+
+def read_input() -> Grid:
     with open(os.path.join(os.path.dirname(__file__), INPUT_FILE)) as f:
         return [line.strip() for line in f]
 
-def is_symbol(x, y, game, symbol_test=None) -> bool:
-    if symbol_test is None:
-        symbol_test = lambda c: not c.isnumeric() and c != "."
-    if x < 0 or x >= len(game[0]):
-        return False
-    if y < 0 or y >= len(game):
-        return False
-    c = game[y][x]
-    return symbol_test(c)
 
-def check_n(y, min_x, max_x, game) -> bool:
-    if is_symbol(min_x-1, y, game) or is_symbol(max_x, y, game):
-        return True
-
-    for x in range(min_x-1, max_x+1):
-        for t_y in [y-1, y+1]:
-            if is_symbol(x, t_y, game):
-                return True
-    return False
-
-def get_numbers(game: List[Dict]) -> Iterable[int]:
-    for y, line in enumerate(game):
-        x = 0
-        while x < len(line):
-            if not line[x].isnumeric():
-                x += 1
-                continue
-            min_x = x
-            while x < len(line) and line[x].isnumeric():
-                x += 1
-            number = int(line[min_x: x])
-            if check_n(y, min_x, x, game):
-                yield number
+def count_numbers(grid: Grid):
+    max_y, max_x = len(grid), len(grid[0])
+    numbers_connected = []
+    star_numbers = defaultdict(list)
+    number_pattern = re.compile(r"\d+")
+    for y, line in enumerate(grid):
+        for match in re.finditer(number_pattern, line):
+            x0, x1 = match.span()
+            n = int(match.group(0))
+            boundaries = (
+                [(x, y - 1) for x in range(x0 - 1, x1 + 1)]
+                + [(x, y + 1) for x in range(x0 - 1, x1 + 1)]
+                + [(x0 - 1, y), (x1, y)]
+            )
+            is_number_adjacntent = False
+            for neighbour in boundaries:
+                n_x, n_y = neighbour
+                if n_x < 0 or n_x >= max_x or n_y < 0 or n_y >= max_y:
+                    continue
+                c = grid[n_y][n_x]
+                if c == "*":
+                    star_numbers[neighbour].append(n)
+                if not c.isdigit() and c != ".":
+                    is_number_adjacntent = True
+            if is_number_adjacntent:
+                numbers_connected.append(n)
+    logger.info("Res a: %s", sum(numbers_connected))
+    gears = [
+        numbers[0] * numbers[1]
+        for numbers in star_numbers.values()
+        if len(numbers) == 2
+    ]
+    logger.info("Res b: %s", sum(gears))
 
 
 def main():
-    map_ = read_map()
-    part_numbers = list(get_numbers(map_))
-    logger.info(f"Result a {sum(part_numbers)}, {part_numbers}")
-
+    grid = read_input()
+    count_numbers(grid)
 
 
 if __name__ == "__main__":
