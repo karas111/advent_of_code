@@ -1,11 +1,11 @@
 import logging
 import os
 import re
-from typing import Iterable, Mapping
+from typing import Iterable
 
-from year2019.utils import init_logging
 from sortedcontainers import SortedList
 
+from year2019.utils import init_logging
 
 logger = logging.getLogger(__name__)
 
