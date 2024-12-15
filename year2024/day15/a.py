@@ -41,32 +41,6 @@ def get_current_cord(g: Grid) -> Cords:
     raise ValueError("Not found starting pos")
 
 
-def move_a(g: Grid, moves: str) -> Grid:
-    x, y = get_current_cord(g)
-    for m in moves:
-        dx, dy = M_VEC[m]
-        to_move = set()
-        n_x, n_y = x, y
-        move_allowed = True
-        while True:
-            n_x, n_y = n_x + dx, n_y + dy
-            n_c = g[n_y][n_x]
-            if n_c == "O":
-                to_move.add((n_x, n_y))
-            elif n_c == ".":
-                break
-            elif n_c == "#":
-                move_allowed = False
-                break
-        if move_allowed:
-            for n_x, n_y in to_move:
-                g[n_y + dy][n_x + dx] = "O"
-            g[y][x] = "."
-            x, y = x + dx, y + dy
-            g[y][x] = "@"
-        # logger.info("\n%s", "\n".join("".join(line) for line in g))
-
-
 def count_score(g: Grid) -> int:
     res = 0
     for y, line in enumerate(g):
@@ -91,11 +65,11 @@ def modify_map(g: Grid) -> Grid:
     return res
 
 
-def move_b(g: Grid, moves: str) -> Grid:
+def move(g: Grid, moves: str) -> Grid:
     x, y = get_current_cord(g)
     for m in moves:
         dx, dy = M_VEC[m]
-        to_move = set()
+        to_move = []
         n_x, n_y = x, y
         front_points = {(n_x, n_y)}
         move_allowed = True
@@ -104,7 +78,7 @@ def move_b(g: Grid, moves: str) -> Grid:
             for n_x, n_y in front_points:
                 n_x, n_y = n_x + dx, n_y + dy
                 n_c = g[n_y][n_x]
-                if n_c in "[]" and dy == 0:
+                if (n_c in "[]" and dy == 0) or n_c == "O":
                     new_front_points.add((n_x, n_y))
                 elif n_c == "[" and y != 0:
                     new_front_points.add((n_x, n_y))
@@ -119,17 +93,14 @@ def move_b(g: Grid, moves: str) -> Grid:
                     break
             if not move_allowed:
                 break
-            to_move.update(front_points)
+            to_move.extend(front_points)
             front_points = new_front_points
             if not front_points:
                 break
         if not move_allowed:
             continue
 
-        sorted_to_move = sorted(
-            to_move, key=lambda cords: -cords[0] * dx - cords[1] * dy
-        )
-        for n_x, n_y in sorted_to_move:
+        for n_x, n_y in reversed(to_move):
             c = g[n_y][n_x]
             g[n_y][n_x] = "."
             g[n_y + dy][n_x + dx] = c
@@ -140,13 +111,13 @@ def move_b(g: Grid, moves: str) -> Grid:
 def main():
     g, moves = read_input()
     with catchtime(logger):
-        move_a(g, moves)
+        move(g, moves)
         logger.info("Res A %s", count_score(g))
 
     g, moves = read_input()
     g = modify_map(g)
     with catchtime(logger):
-        move_b(g, moves)
+        move(g, moves)
         logger.info("Res B %s", count_score(g))
 
 
