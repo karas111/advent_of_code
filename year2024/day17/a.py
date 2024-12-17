@@ -8,6 +8,7 @@ from functools import cache
 
 from catch_time import catchtime
 from year2019.utils import init_logging
+from z3 import BitVec, Optimize
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +159,7 @@ class Computer:
         while self._pointer < len(self._instructions):
             opcode, operand = self._instructions[self._pointer : self._pointer + 2]
             inst = self.generate_instruction(opcode, operand)
-            logger.info("%s %s\n%s", self._pointer, self._registers, inst)
+            # logger.info("%s %s\n%s", self._pointer, self._registers, inst)
             inst.run_with_pointer(self)
             # logger.info("%s", self._registers)
 
@@ -215,6 +216,22 @@ def part2(expected_outs: list[int]) -> int:
         depth += 1
     return min(possible_a)
 
+def part2_z3(insts = list[int]) -> int:
+    opt = Optimize()
+    s = BitVec("s", 64)
+    a, b, c = s, 0, 0
+    for x in insts:
+        b = a % 8
+        b = b ^ 5
+        c = a / (1 << b)
+        a = a / (1 << 3)
+        b = b ^ c
+        b = b ^ 6
+        opt.add((b % 8) == x)
+    opt.add(a == 0)
+    opt.minimize(s)
+    assert str(opt.check()) == 'sat'
+    return opt.model().eval(s)
 
 def main():
     cmp = read_input()
