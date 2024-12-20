@@ -1,6 +1,6 @@
 import logging
 import os
-from collections import defaultdict, deque
+from collections import deque
 
 from catch_time import catchtime
 from cords.cords_2d import Cords
@@ -27,7 +27,7 @@ def read_input() -> Grid:
 
 def bfs(g: Grid, start: tuple[Cords, int]) -> int:
     queue = deque([start])
-    energized = defaultdict(int)
+    energized = set()
     while queue:
         current, move_idx = queue.popleft()
         if (
@@ -37,9 +37,9 @@ def bfs(g: Grid, start: tuple[Cords, int]) -> int:
             or current.y >= len(g)
         ):
             continue
-        if energized[(current, move_idx)] > 1:
+        if (current, move_idx) in energized:
             continue
-        energized[(current, move_idx)] += 1
+        energized.add((current, move_idx))
 
         move_vertical = move_idx % 2
         c = g[current.y][current.x]
@@ -60,10 +60,7 @@ def bfs(g: Grid, start: tuple[Cords, int]) -> int:
             queue.append((current + MOVE_VEC[new_move_idx], new_move_idx))
         else:
             raise ValueError("unexpected char")
-    total_energized = defaultdict(int)
-    for (cords, _), v in energized.items():
-        total_energized[cords] += v
-    return len([v for v in total_energized.values() if v >= 1])
+    return len({cords for cords, _ in energized})
 
 
 def solve_part2(g: Grid):
