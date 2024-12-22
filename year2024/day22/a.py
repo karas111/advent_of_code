@@ -1,6 +1,6 @@
 import logging
 import os
-from itertools import product
+from collections import defaultdict
 
 from catch_time import catchtime
 from year2019.utils import init_logging
@@ -40,19 +40,11 @@ def solve2(seqs: list[list[int]]):
     prices = [[x % 10 for x in seq] for seq in seqs]
     diffs = [[x1 - x0 for x0, x1 in zip(seq, seq[1:])] for seq in prices]
     diffs = [get_first_seq_occurences(diff_seq) for diff_seq in diffs]
-    best_val = 0
-    i = 0
-    for sell_inst in product(range(-9, 10), repeat=4):
-        i += 1
-        if i % 10000 == 0:
-            logger.info(f"Checking %s combination", i)
-        res = 0
-        for price_seq, diff_occ in zip(prices, diffs):
-            idx = diff_occ.get(sell_inst)
-            if idx is not None:
-                res += price_seq[idx + 4]
-        best_val = max(best_val, res)
-    return best_val
+    res = defaultdict(int)
+    for price_seq, diff_occ in zip(prices, diffs):
+        for sell_inst, idx in diff_occ.items():
+            res[sell_inst] += price_seq[idx + 4]
+    return max(res.values())
 
 
 def main():
