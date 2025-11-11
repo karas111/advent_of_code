@@ -1,10 +1,6 @@
 import logging
 import os
-import re
 from collections import defaultdict
-
-from numpy import delete
-from traitlets import default
 
 from year2019.utils import init_logging
 
