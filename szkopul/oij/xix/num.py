@@ -16,9 +16,10 @@ def main():
     res = []
     for n in reversed(number):
         all_letters = NUM_MAP[n]
-        letter = all_letters[k % len(all_letters)]
+        base = len(all_letters)
+        letter = all_letters[k % base]
         res.append(letter)
-        k = k // len(all_letters)
+        k = k // base
     print("".join(reversed(res)))
 
 
