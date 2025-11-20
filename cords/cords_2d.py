@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import math
 
 
@@ -16,8 +15,15 @@ class Cords:
     def __mul__(self, scalar):
         return Cords(self.x * scalar, self.y * scalar)
 
+    def __truediv__(self, scalar):
+        return Cords(self.x / scalar, self.y / scalar)
+
+    def __floordiv__(self, scalar):
+        return Cords(self.x // scalar, self.y // scalar)
+
     def length(self):
         return math.sqrt(self.x**2 + self.y**2)
+
     def __hash__(self):
         return hash((self.x, self.y))
 
