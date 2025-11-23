@@ -2,11 +2,9 @@ import logging
 import os
 import re
 from collections import deque
-from dataclasses import dataclass
-from queue import PriorityQueue
-from typing import Iterable, TypeVar
+from typing import TypeVar
 
-from custom_collections.priority import PriorityEntry
+from catch_time import catchtime
 from year2019.utils import init_logging
 
 logger = logging.getLogger(__name__)
@@ -62,90 +60,61 @@ def reduce_graph(
         shortest[node] = {
             k: v for k, v in bfs(node, graph).items() if k in nodes_to_include
         }
+    return shortest
 
-    nodes_mapping = {node_str: 1 << i for i, node_str in enumerate(shortest)}
-    shortest = {
-        nodes_mapping[n]: {nodes_mapping[x]: dist for x, dist in neihbours.items()}
-        for n, neihbours in shortest.items()
+
+def encode_graph(graph: WeightedGraph, flow_rates: FlowRates):
+    mapping = {node_str: 1 << i for i, node_str in enumerate(graph)}
+    encoded_graph = {
+        mapping[n]: {mapping[nn]: v for nn, v in neighbours.items()}
+        for n, neighbours in graph.items()
     }
-    logger.info(nodes_mapping)
-    logger.info(shortest)
-    return shortest, nodes_mapping
+    flow_rates = {mapping[n]: flow_rates[n] for n in graph}
+    return encoded_graph, flow_rates, mapping["AA"]
 
 
-@dataclass
-class State:
-    current: int
-    remaining_time: int
-    open_mask: int
+def visit(graph: WeightedGraph, flow_rates: FlowRates, start: int, minutes: int) -> int:
+    answer = {}
 
-    def __hash__(self):
-        return hash((self.current, self.remaining_time, self.open_mask))
-
-    # helper fields
-    # all_valves_open_flow: int
-
-    def is_open(self):
-        return self.open_mask & self.current
-
-    def get_neighbours(
-        self, graph: WeightedGraph, flow_rates: FlowRates
-    ) -> Iterable[tuple["State", int]]:
-        total_possible_flow = sum(flow_rates.values())
-        if self.remaining_time <= 0:
-            return
-        open_valves_flow = sum(
-            rate for node, rate in flow_rates.items() if node & self.open_mask
-        )
-        if not self.is_open():
-            yield (
-                State(
-                    self.current, self.remaining_time - 1, self.open_mask | self.current
-                ),
-                total_possible_flow - open_valves_flow,
-            )
-        for neighbour, dist in graph[self.current].items():
-            if dist > self.remaining_time:
+    def visit_(
+        current: int, open_mask: int, released_pessure: int, remaining_time: int
+    ):
+        answer[open_mask] = max(answer.get(open_mask, 0), released_pessure)
+        for node, flow_rate in flow_rates.items():
+            if not flow_rate:
                 continue
-            yield (
-                State(neighbour, self.remaining_time - dist, self.open_mask),
-                (total_possible_flow - open_valves_flow) * dist,
+            new_remaining_time = remaining_time - graph[current][node] - 1
+            if node & open_mask or new_remaining_time <= 0:
+                continue
+            visit_(
+                node,
+                open_mask | node,
+                released_pessure + new_remaining_time * flow_rate,
+                new_remaining_time,
             )
-        # do noting state, no need, there is self<->self edge
-        # yield (
-        #     State(self.current, 0, self.open_mask),
-        #     total_possible_flow - open_valves_flow * open_valves_flow,
-        # )
 
-
-def dijkstra(
-    graph: WeightedGraph, start: State, flow_rates: FlowRates
-) -> tuple[int, int]:
-    frontier = PriorityQueue()
-    frontier.put(PriorityEntry(0, start))
-    cost_so_far = {start: 0}
-
-    while not frontier.empty():
-        state: State = frontier.get().data
-        if state.remaining_time == 0:
-            return cost_so_far[state], state.open_mask
-
-        for n, edge_w in state.get_neighbours(graph, flow_rates):
-            new_cost = cost_so_far[state] + edge_w
-            if n not in cost_so_far or cost_so_far[n] > new_cost:
-                cost_so_far[n] = new_cost
-                frontier.put(PriorityEntry(new_cost, n))
+    visit_(start, 0, 0, minutes)
+    return answer
 
 
 def main():
     flow_rates, graph = read_graph()
-    reduced_graph, mapping = reduce_graph(flow_rates, graph)
-    flow_rates = {mapping[n]: v for n, v in flow_rates.items() if v or n == "AA"}
-    logger.info("\n%s\n%s\n%s", mapping, flow_rates, reduced_graph)
-    res, open_valves = dijkstra(reduced_graph, State(mapping["AA"], 30, 0), flow_rates)
-    logger.info("Result a %s", 30 * sum(flow_rates.values()) - res)
+    graph = reduce_graph(flow_rates, graph)
+    graph, flow_rates, start = encode_graph(graph, flow_rates)
+    res = visit(graph, flow_rates, start, 30)
+    logger.info("Result a %d", max(res.values()))
+
+    visited = visit(graph, flow_rates, start, 26)
+    res2 = max(
+        a + b
+        for a_mask, a in visited.items()
+        for b_mask, b in visited.items()
+        if not (a_mask & b_mask)
+    )
+    logger.info("Result b %d", res2)
 
 
 if __name__ == "__main__":
     init_logging()
-    main()
+    with catchtime(logger):
+        main()
