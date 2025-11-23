@@ -32,3 +32,7 @@ class Cords:
 
     def __repr__(self):
         return f"Cords({self.x}, {self.y})"
+
+    @property
+    def manhattan_distance(self):
+        return abs(self.x) + abs(self.y)
