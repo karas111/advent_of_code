@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 
 import catch_time
 from year2019.utils import init_logging
