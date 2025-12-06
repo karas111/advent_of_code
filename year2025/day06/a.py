@@ -28,25 +28,19 @@ def solve(numbers) -> list[int]:
 
 
 def solve_b(text: list[str]):
-    last_line = text[-1]
-    indexes = [i for i, c in enumerate(last_line) if c in "+*"]
-    indexes.append(len(last_line) + 1)
+    text_trans = map("".join, zip(*text))
+    text_trans = "\n".join([l.strip() for l in text_trans])
     res = []
-    current_number_col = 0
-    while current_number_col < len(indexes) - 1:
-        start, end = indexes[current_number_col], indexes[current_number_col + 1]
-        to_operate = []
-        for x in range(start, end - 1):
-            number_col = []
-            for y in range(len(text) - 1):
-                number_col.append(text[y][x])
-            number = int("".join(number_col))
-            to_operate.append(number)
-        if last_line[start] == "+":
-            res.append(sum(to_operate))
+    for op_text in text_trans.split("\n\n"):
+        numbers_txt = op_text.split("\n")
+        numbers_int = [
+            int(number) if number[-1].isdigit() else int(number[:-1])
+            for number in numbers_txt
+        ]
+        if numbers_txt[0][-1] == "+":
+            res.append(sum(numbers_int))
         else:
-            res.append(math.prod(to_operate))
-        current_number_col += 1
+            res.append(math.prod(numbers_int))
     return res
 
 
