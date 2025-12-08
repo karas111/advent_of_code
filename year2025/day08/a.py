@@ -3,11 +3,12 @@ import math
 import os
 
 import catch_time
+from custom_collections.findunion import FindUnion
 from year2019.utils import init_logging
 
 logger = logging.getLogger(__name__)
 
-INPUT_FILE = "test1.txt"
+INPUT_FILE = "input.txt"
 
 
 def read_input():
@@ -23,28 +24,17 @@ def solve(circuits, part_b=False):
             dist = sum((a - b) ** 2 for a, b in zip(c1, c2))
             distances.append((dist, (c1, c2)))
     distances.sort()
-    # can use Find Union for better performance
-    # but still calculating distances is quadratic
-    circuits_rep = {c: {c} for c in circuits}
+
+    fu = FindUnion(circuits)
     i = 0
     for _, (c1, c2) in distances:
-        new_c = circuits_rep[c1] | circuits_rep[c2]
-        for c in new_c:
-            circuits_rep[c] = new_c
-
+        fu.union(c1, c2)
         i += 1
         if not part_b and i >= rounds:
             break
-        if len(new_c) == len(circuits):
+        if part_b and fu.n_sets == 1:
             return c1[0] * c2[0]
-    sizes = []
-    seen = set()
-    for c in circuits:
-        if c in seen:
-            continue
-        sizes.append(len(circuits_rep[c]))
-        seen = seen | circuits_rep[c]
-    return sorted(sizes)
+    return sorted(map(len, fu.get_sets()))
 
 
 def main():
