@@ -1,3 +1,4 @@
+import functools
 import logging
 import math
 import os
@@ -15,27 +16,20 @@ def read_input() -> dict[str, set]:
     res = defaultdict(set)
     with open(os.path.join(os.path.dirname(__file__), INPUT_FILE)) as f:
         for line in f:
-            line = line.strip()
-            src, neighbours = line.split(": ")
+            src, neighbours = line.strip().split(": ")
             res[src].update(neighbours.split(" "))
     return res
 
 
 def solve(graph: dict[str, set[str]], start="you", end="out") -> int:
-    paths = {}
 
-    def dfs(node: str):
-        if node in paths:
-            return
+    @functools.cache
+    def dfs(node: str) -> int:
         if node == end:
-            paths[node] = 1
-            return
-        for n in graph[node]:
-            dfs(n)
-        paths[node] = sum(paths[n] for n in graph[node])
+            return 1
+        return sum(dfs(n) for n in graph[node])
 
-    dfs(start)
-    return paths[start]
+    return dfs(start)
 
 
 def solve_b(graph: dict[str, set[str]]) -> int:
