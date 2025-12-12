@@ -197,8 +197,11 @@ def solve_b(grid: list[str], moves: list):
     # it, so the starting point is in bottom left corner of front ("abcd") face
     cube = cube.rotate(">").rotate("^")
     cords = Cords(0, 0)
-    direction = 1  # "v"
-    dir_mod = -1
+    direction = 1  # "v", change the direction because of the cube rotation
+    dir_mod = (
+        -1
+    )  # we "wrap" the cube's net round, so we see a "reflection" of the original image on
+    # the cubes face. Therefore, we the turns are reverted
     for move in moves:
         if move == "L":
             direction = (direction - 1 * dir_mod) % 4
