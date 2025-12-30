@@ -1,6 +1,5 @@
 import logging
 import os
-from collections import defaultdict
 
 import catch_time
 from cords.cords_2d import Cords
