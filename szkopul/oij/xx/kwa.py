@@ -2,7 +2,7 @@ def main():
     # wczytywanie
     square = []
     for _ in range(5):
-        square.append(list(input()))
+        square.append(input())
 
     res = []
     for y, row in enumerate(square):
